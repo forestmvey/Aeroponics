@@ -12,9 +12,9 @@ start_monitor_child(int pipes[])
         if (pid < 0) {
             log_err("Fork failed");
         } else if (pid == 0) { /* Child */
-	    check(snprintf(p_write, sizeof(p_write), "%d", pipes[WRITE]) < sizeof(p_write), "snprintf truncated");
+	    check(snprintf(p_write, sizeof(p_write), "%d", pipes[WRITE]) < (int)sizeof(p_write), "snprintf truncated");
             close(pipes[READ]);
-            execl("./monitor", "./monitor", p_write, (char *) NULL);
+            execl("./bin/monitor", "./monitor", p_write, (char *) NULL);
             exit(0);
         } else if (pid > 0) { /* Parent */
             close(pipes[WRITE]);
@@ -27,9 +27,9 @@ error:
 }
 
 int
-main(int argc, char *argv[])
+main()
 {
-        int i, nread, status;
+        int nread;
 	int pipes[2];
 	char process_buff[256];
 	pid_t childpid;
@@ -39,7 +39,7 @@ main(int argc, char *argv[])
 exit(0);
         for ( ; ; ) {
 
-	    nread = read(pipes[READ], process_buff);
+	    nread = read(pipes[READ], process_buff, sizeof(process_buff));
 	    switch (nread) {
 	    case -1:
 		if (errno == EAGAIN) { /* pipe empty */

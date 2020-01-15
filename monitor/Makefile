@@ -15,7 +15,7 @@ bin/monitor: src/monitor.c
 	${CC} -o $@ src/monitor.c ${CFLAGS}
 
 bin/aeroponic: src/aeroponic.c
-	${CC} -o $@ src/monitor.c ${CFLAGS}
+	${CC} -o $@ src/aeroponic.c ${CFLAGS}
 
 bin/pump: src/pump.c
 	${CC} -o $@ src/pump.c -lbcm2835 ${CFLAGS}

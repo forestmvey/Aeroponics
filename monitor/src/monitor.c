@@ -89,13 +89,18 @@ error:
 int
 main(int argc, char *argv[])
 {
+	printf("monitor process started\n");
+        printf("argc: %d argv[1]: %s\n", argc, argv[1]);
+
+
+exit(0);
         int i, status, ret, write_pipe;
 	pid_t pids[PROCESS__MAX];
 	pid_t childpid;
 
-	printf("arg 1: %s argc: %d\n", argv[0], argc);
-	check(argc == 2, "Incorrect number of arguments sent to monitor");
-	write_pipe = atoi(argv[1]);
+	printf("arg 0: %s argc: %d\n", argv[0], argc);
+	check(argc > 1, "Incorrect number of arguments sent to monitor");
+//	write_pipe = atoi(argv[1]);
 exit(0);
 	/*
 	 * Begin process for both the solonoid and pump, and store their process id's into the pids array
@@ -129,11 +134,9 @@ log_err("monitor finished exiting now");
 	/*
 	 * Kill all child processes before exiting
 	 */
-	kill(pids[0], SIGKILL);
-	kill(pids[1], SIGKILL);
 	return 0;
 error:
-	kill(pids[0], SIGKILL);
-	kill(pids[1], SIGKILL);
+//	kill(pids[0], SIGKILL);
+//	kill(pids[1], SIGKILL);
 	return -1;
 }

@@ -2,6 +2,8 @@
 #define _aeroponic_h
 
 #include <unistd.h>
+#include <stdlib.h>
+#include <stdio.h>
 
 #define NDEBUG
 #include "logging.h"
@@ -10,7 +12,7 @@
 __BEGIN_DECLS
 
 pid_t
-start_monitor_child(int[])
+start_monitor_child(int[]);
 
 __END_DECLS
 

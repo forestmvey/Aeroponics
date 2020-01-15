@@ -1,3 +1,4 @@
+#include <stdio.h>
 #include <bcm2835.h>
 #include <time.h>
 #include <unistd.h>
@@ -5,13 +6,13 @@
 #define PUMP RPI_GPIO_P1_07
 
 int
-main(int argc, char *argc[])
+main(int argc, char *argv[])
 {
 	size_t check_delay_seconds = 600;
 	size_t last_pump_time = 0;
-	size_t pump_interval_seconds = 43200;
+//	size_t pump_interval_seconds = 43200;
 	size_t pump_on_time_milliseconds = 20000;
-printf("pump argc: %d", argc);
+printf("pump argc: %d %s\n", argc, argv[0]);
 
 	if (!bcm2835_init())
 	    return -1;
