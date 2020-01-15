@@ -14,8 +14,6 @@ main()
 	const size_t SOL_ON_TIME_MILLISECONDS = 2000;
 
 // write to logs start time
-sleep(2);
-exit(1);
 
 	if (!bcm2835_init())
 	    return -1;

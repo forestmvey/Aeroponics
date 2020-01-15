@@ -1,4 +1,4 @@
-#include "monitor.h"
+]#include "monitor.h"
 
 /*
  * check processes function checks over all process passed in the pids array
@@ -86,10 +86,14 @@ error:
 
 }
 
+/*
+ *
+ */
 int
 main(int argc, char *argv[])
 {
         int i, status, ret, write_pipe;
+	char pids_string[24];
 	pid_t pids[PROCESS__MAX];
 	pid_t childpid;
 
@@ -105,13 +109,18 @@ main(int argc, char *argv[])
 	pids[SOLONOID] = start_solonoid_child();
 	check(pids[SOLONOID] != -1, "Failed to start child");
 
+
+	/*
+	 * Build to process id string to send to parent process
+	 */
+	check(snprintf(pids_string, sizeof(pids_string), "%d %d", pids[PUMP], pids[SOLONOID]) < (int)sizeof(pids_string), "snprintf truncated");
+	check(write(write_pipe, pids_string, 24) > 0, "Failed to write message to pipe");
+
 	/*
 	 * Wait for any child processes to die and restart them when they fail
 	 */
         for ( ; ; ) {
             childpid = wait(&status);
-            check(write(write_pipe, "child crashed. \n", 256) > 0, "Failed to write message to pipe");
-log_err("monitor finished exiting now");
 	    ret = check_processes(pids, childpid);
 	    if (ret != 0) {
 		/*
@@ -122,16 +131,15 @@ log_err("monitor finished exiting now");
 			break;
 		    }
 		}
-		log_info("Failed to start curl child process for exchange: %s", get_process_string(i));
+		check(write(write_pipe, "ERROR: EXITING", 24) > 0, "Failed to write message to pipe");
+		log_info("Failed to start child process for %s", get_process_string(i));
+	    } else {
+		check(snprintf(pids_string, sizeof(pids_string), "%d %d", pids[PUMP], pids[SOLONOID]) < (int)sizeof(pids_string), "snprintf truncated");
+		check(write(write_pipe, pids_string, 24) > 0, "Failed to write message to pipe");
 	    }
         }
 
-	/*
-	 * Kill all child processes before exiting
-	 */
 	return 0;
 error:
-//	kill(pids[0], SIGKILL);
-//	kill(pids[1], SIGKILL);
 	return -1;
 }

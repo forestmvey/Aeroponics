@@ -1,5 +1,14 @@
 #include "aeroponic.h"
 
+/*
+* Kill all child processes
+*/
+int
+kill_processes(int processes[])
+{
+
+}
+
 pid_t
 start_monitor_child(int pipes[])
 {
