@@ -1,4 +1,4 @@
-]#include "monitor.h"
+#include "monitor.h"
 
 /*
  * check processes function checks over all process passed in the pids array

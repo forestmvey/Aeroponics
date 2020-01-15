@@ -9,6 +9,7 @@
 enum process {
 	PUMP,
 	SOLONOID,
+	MONITOR,
         PROCESS__MAX
 };
 
@@ -23,6 +24,8 @@ get_process_string(int process)
             return "PUMP";
         case (SOLONOID):
             return "SOLONOID";
+        case (MONITOR):
+            return "MONITOR";
         default:
             return "INVALID PROCESS PARAMETER";
         }

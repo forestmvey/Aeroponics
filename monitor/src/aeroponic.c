@@ -1,12 +1,50 @@
 #include "aeroponic.h"
 
 /*
-* Kill all child processes
-*/
+ * Kill all child processes
+ */
 int
-kill_processes(int processes[])
+kill_processes(int process[])
 {
+	struct stat sts;
+	char proc_string[12];
 
+	for (int i = 0; i < PROCESS__MAX; i++) {
+	    check(snprintf(proc_string, sizeof(proc_string), "/proc/%d", process[i]) < (int)sizeof(proc_string), "snprintf truncated");
+
+	    if (stat(proc_string, &sts) == -1 && errno == ENOENT) { /* Process doesn't exist */
+		continue;
+	    } else {
+		kill(process[i], SIGKILL);
+	    }
+	}
+
+	return 0;
+error:
+	return -1;
+}
+
+/*
+ * Check if any processes are showing errors
+ */
+int
+check_process_activity(int process[])
+{
+	struct stat sts;
+	char proc_string[12];
+
+	for (int i = 0; i < PROCESS__MAX; i++) {
+	    check(snprintf(proc_string, sizeof(proc_string), "/proc/%d", process[i]) < (int)sizeof(proc_string), "snprintf truncated");
+
+	    if (stat(proc_string, &sts) == -1 && errno == ENOENT) { /* Process doesn't exist */
+		log_err("error logging ")
+	    }
+	    if // new error logs restart
+	}
+
+	return 0;
+error:
+	return -1;
 }
 
 pid_t
@@ -39,11 +77,15 @@ int
 main()
 {
         int nread;
-	int pipes[2];
+	int pipes[2], processes[PROCESS__MAX];
+	size_t process_start_time;
 	char process_buff[256];
 	pid_t childpid;
 
+	process_start_time = (size_t)time(NULL);
         childpid = start_monitor_child(pipes);
+	check(childpid != -1, "Failed to start monitor child process");
+	processes[MONITOR] = childpid;
 
         for ( ; ; ) {
 
@@ -66,14 +108,18 @@ main()
 //	        close(pipes[READ]);
 	    }
 
-	    if (strncmp(process_buff, "", 1) == 0) /* No new items to insert into database */
-		continue;
+	    if (check_process_activity(processes) != 0) {
+		kill_processes(process);
+		start_monitor_child(pipes);
+	    }
 
-	    sleep(10);
+	    sleep(30);
         }
 
+	kill_processes(processes);
         exit(0);
 error:
+	kill_processes(processes);
         exit(-1);
 }
 
