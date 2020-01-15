@@ -36,7 +36,6 @@ main()
 
         childpid = start_monitor_child(pipes);
 
-exit(0);
         for ( ; ; ) {
 
 	    nread = read(pipes[READ], process_buff, sizeof(process_buff));

@@ -20,10 +20,10 @@ check_processes(int pids[PROCESS__MAX], int dead_pid)
                 }
                 if (pid == 0) { /* child process  */
 		    if (process == PUMP) {
-	    	        execl("./bin/pump", "./pump", NULL);
+	    	        execl("./bin/pump", "./pump", (char *)NULL);
 	    	        exit(0);
 		    } else {
-	    	        execl("./bin/solonoid", "./solonoid", NULL);
+	    	        execl("./bin/solonoid", "./solonoid", (char *)NULL);
 	    	        exit(0);
 		    }
                 }
@@ -51,7 +51,7 @@ start_solonoid_child()
 	if (pid < 0) {
 	    log_err("Fork failed");
 	} else if (pid == 0) { /* Child */
-	    execl("./bin/solonoid", "./solonoid", NULL);
+	    execl("./bin/solonoid", "./solonoid", (char *)NULL);
 	    exit(0);
 	} else if (pid > 0) { /* Parent */
 	    return pid;
@@ -75,7 +75,7 @@ start_pump_child()
 	if (pid < 0) {
 	    log_err("Fork failed");
 	} else if (pid == 0) { /* Child */
-	    execl("./bin/pump", "./pump", NULL);
+	    execl("./bin/pump", "./pump", (char *)NULL);
 	    exit(0);
 	} else if (pid > 0) { /* Parent */
 	    return pid;
@@ -89,19 +89,14 @@ error:
 int
 main(int argc, char *argv[])
 {
-	printf("monitor process started\n");
-        printf("argc: %d argv[1]: %s\n", argc, argv[1]);
-
-
-exit(0);
         int i, status, ret, write_pipe;
 	pid_t pids[PROCESS__MAX];
 	pid_t childpid;
 
 	printf("arg 0: %s argc: %d\n", argv[0], argc);
-	check(argc > 1, "Incorrect number of arguments sent to monitor");
-//	write_pipe = atoi(argv[1]);
-exit(0);
+	check(argc == 2, "Incorrect number of arguments sent to monitor");
+	write_pipe = atoi(argv[1]);
+
 	/*
 	 * Begin process for both the solonoid and pump, and store their process id's into the pids array
 	 */

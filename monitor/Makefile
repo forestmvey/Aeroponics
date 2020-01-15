@@ -9,7 +9,7 @@ OBJTEMP = ${SRC:S/src/bin/}
 OBJ = ${OBJTEMP:S/.c/.o/}
 
 .PHONY: all
-all: bin/monitor bin/pump bin/solenoid bin/aeroponic
+all: bin/monitor bin/pump bin/solonoid bin/aeroponic
 
 bin/monitor: src/monitor.c
 	${CC} -o $@ src/monitor.c ${CFLAGS}
@@ -20,8 +20,8 @@ bin/aeroponic: src/aeroponic.c
 bin/pump: src/pump.c
 	${CC} -o $@ src/pump.c -lbcm2835 ${CFLAGS}
 
-bin/solenoid: src/solenoid.c
-	${CC} -o $@ src/solenoid.c -lbcm2835 ${CFLAGS}
+bin/solonoid: src/solonoid.c
+	${CC} -o $@ src/solonoid.c -lbcm2835 ${CFLAGS}
 
 clean:
 	rm -f bin/*
