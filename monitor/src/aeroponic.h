@@ -5,6 +5,8 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <sys/stat.h>
+#include <time.h>
+#include <signal.h>
 
 #define NDEBUG
 #include "logging.h"

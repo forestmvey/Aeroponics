@@ -9,7 +9,7 @@ kill_processes(int process[])
 	struct stat sts;
 	char proc_string[12];
 
-	for (int i = 0; i < PROCESS__MAX; i++) {
+	for (int i = 0; i < AEROPONIC__PROCESS__MAX; i++) {
 	    check(snprintf(proc_string, sizeof(proc_string), "/proc/%d", process[i]) < (int)sizeof(proc_string), "snprintf truncated");
 
 	    if (stat(proc_string, &sts) == -1 && errno == ENOENT) { /* Process doesn't exist */
@@ -33,13 +33,13 @@ check_process_activity(int process[])
 	struct stat sts;
 	char proc_string[12];
 
-	for (int i = 0; i < PROCESS__MAX; i++) {
+	for (int i = 0; i < AEROPONIC__PROCESS__MAX; i++) {
 	    check(snprintf(proc_string, sizeof(proc_string), "/proc/%d", process[i]) < (int)sizeof(proc_string), "snprintf truncated");
 
 	    if (stat(proc_string, &sts) == -1 && errno == ENOENT) { /* Process doesn't exist */
-		log_err("error logging ")
+		log_err("error logging ");
 	    }
-	    if // new error logs restart
+//	    if // new error logs restart
 	}
 
 	return 0;
@@ -77,12 +77,12 @@ int
 main()
 {
         int nread;
-	int pipes[2], processes[PROCESS__MAX];
-	size_t process_start_time;
+	int pipes[2], processes[AEROPONIC__PROCESS__MAX];
+//	size_t process_start_time;
 	char process_buff[256];
 	pid_t childpid;
 
-	process_start_time = (size_t)time(NULL);
+//	process_start_time = (size_t)time(NULL);
         childpid = start_monitor_child(pipes);
 	check(childpid != -1, "Failed to start monitor child process");
 	processes[MONITOR] = childpid;
@@ -109,7 +109,7 @@ main()
 	    }
 
 	    if (check_process_activity(processes) != 0) {
-		kill_processes(process);
+		kill_processes(processes);
 		start_monitor_child(pipes);
 	    }
 

@@ -6,12 +6,12 @@
  * index in the array is replaced with a new forked process.
  */
 int
-check_processes(int pids[PROCESS__MAX], int dead_pid)
+check_processes(int pids[MONITOR__PROCESS__MAX], int dead_pid)
 {
         int process;
         pid_t pid;
 
-        for (process = 0; process < PROCESS__MAX; process++) {
+        for (process = 0; process < MONITOR__PROCESS__MAX; process++) {
             if (pids[process] == dead_pid) {
 		log_info("process for exchange %s failed", get_process_string(process));
                 pid = fork();
@@ -94,7 +94,7 @@ main(int argc, char *argv[])
 {
         int i, status, ret, write_pipe;
 	char pids_string[24];
-	pid_t pids[PROCESS__MAX];
+	pid_t pids[MONITOR__PROCESS__MAX];
 	pid_t childpid;
 
 	printf("arg 0: %s argc: %d\n", argv[0], argc);
@@ -123,15 +123,16 @@ main(int argc, char *argv[])
             childpid = wait(&status);
 	    ret = check_processes(pids, childpid);
 	    if (ret != 0) {
+
 		/*
-		 * Search to find which process failed to logging
+		 * Search to find which process failed to start and log
 		 */
-		for (i = 0; i < PROCESS__MAX; i++) {
+		for (i = 0; i < MONITOR__PROCESS__MAX; i++) {
 		    if (pids[i] == childpid) {
 			break;
 		    }
 		}
-		check(write(write_pipe, "ERROR: EXITING", 24) > 0, "Failed to write message to pipe");
+		check(write(write_pipe, "ERROR: Failed to start child process", 24) > 0, "Failed to write message to pipe");
 		log_info("Failed to start child process for %s", get_process_string(i));
 	    } else {
 		check(snprintf(pids_string, sizeof(pids_string), "%d %d", pids[PUMP], pids[SOLONOID]) < (int)sizeof(pids_string), "snprintf truncated");

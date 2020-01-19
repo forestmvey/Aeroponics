@@ -9,8 +9,9 @@
 enum process {
 	PUMP,
 	SOLONOID,
-	MONITOR,
-        PROCESS__MAX
+	MONITOR__PROCESS__MAX,
+	MONITOR = 2,
+        AEROPONIC__PROCESS__MAX = 3
 };
 
 /*
