@@ -17,10 +17,7 @@ int
 check_processes(int[], int);
 
 pid_t
-start_pump_child();
-
-pid_t
-start_solonoid_child();
+start_child(enum process);
 
 __END_DECLS
 

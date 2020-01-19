@@ -19,13 +19,7 @@ check_processes(int pids[MONITOR__PROCESS__MAX], int dead_pid)
                     log_err("Fork failed");
                 }
                 if (pid == 0) { /* child process  */
-		    if (process == PUMP) {
-	    	        execl("./bin/pump", "./pump", (char *)NULL);
-	    	        exit(0);
-		    } else {
-	    	        execl("./bin/solonoid", "./solonoid", (char *)NULL);
-	    	        exit(0);
-		    }
+		    check(start_child(process) != -1, "Failed to start child process for %s", get_process_string(process));
                 }
 		if (pid > 0) { /* parent process  */
                     pids[process] = pid;
@@ -43,7 +37,7 @@ error:
  * the process id for that child, or -1 on error
  */
 pid_t
-start_solonoid_child()
+start_child(enum process proc)
 {
 	pid_t pid;
 
@@ -51,32 +45,19 @@ start_solonoid_child()
 	if (pid < 0) {
 	    log_err("Fork failed");
 	} else if (pid == 0) { /* Child */
-	    execl("./bin/solonoid", "./solonoid", (char *)NULL);
-	    exit(0);
-	} else if (pid > 0) { /* Parent */
-	    return pid;
-	}
+	    switch(proc) {
+	    case PUMP:
+		execl("./bin/pump", "./pump", (char *)NULL);
+		exit(0);
+		break;
+	    case SOLONOID:
+		execl("./bin/solonoid", "./solonoid", (char *)NULL);
+		exit(0);
+		break;
+	    default:
+		log_err("Invalid process choice");
 
-error:
-	return (pid_t)-1;
-
-}
-
-/*
- * Fork and exec a new process for the gpio execute pump operations, and return
- * the process id for that child, or -1 on error
- */
-pid_t
-start_pump_child()
-{
-	pid_t pid;
-
-	pid = fork();
-	if (pid < 0) {
-	    log_err("Fork failed");
-	} else if (pid == 0) { /* Child */
-	    execl("./bin/pump", "./pump", (char *)NULL);
-	    exit(0);
+	    }
 	} else if (pid > 0) { /* Parent */
 	    return pid;
 	}
@@ -104,9 +85,9 @@ main(int argc, char *argv[])
 	/*
 	 * Begin process for both the solonoid and pump, and store their process id's into the pids array
 	 */
-	pids[PUMP] = start_pump_child();
+	pids[PUMP] = start_child(PUMP);
 	check(pids[PUMP] != -1, "Failed to start child");
-	pids[SOLONOID] = start_solonoid_child();
+	pids[SOLONOID] = start_child(SOLONOID);
 	check(pids[SOLONOID] != -1, "Failed to start child");
 
 
