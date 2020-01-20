@@ -7,12 +7,16 @@
 #include <sys/stat.h>
 #include <time.h>
 #include <signal.h>
+#include <string.h>
 
 #define NDEBUG
 #include "logging.h"
 #include "common.h"
 
 __BEGIN_DECLS
+
+int
+set_processes(int[], char*);
 
 int
 kill_processes(int[]);

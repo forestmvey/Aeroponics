@@ -1,5 +1,20 @@
 #include "aeroponic.h"
 
+int
+set_processes(int processes[], char* str)
+{
+	char* proc = NULL;
+
+	proc = strtok(str, " ");
+	for (int i = 0; i < MONITOR__PROCESS__MAX && proc != NULL; i++) {
+	    processes[i] = atoi(proc); // regex FIXME
+	}
+
+	return 0;
+error:
+	return -1;
+}
+
 /*
  * Kill all child processes
  */
@@ -7,14 +22,16 @@ int
 kill_processes(int process[])
 {
 	struct stat sts;
-	char proc_string[12];
+	char proc_string[24];
 
 	for (int i = 0; i < AEROPONIC__PROCESS__MAX; i++) {
 	    check(snprintf(proc_string, sizeof(proc_string), "/proc/%d", process[i]) < (int)sizeof(proc_string), "snprintf truncated");
 
 	    if (stat(proc_string, &sts) == -1 && errno == ENOENT) { /* Process doesn't exist */
+		printf("process %d doesn't exist\n", process[i]);
 		continue;
 	    } else {
+		printf("killing process: %d\n", process[i]);
 		kill(process[i], SIGKILL);
 	    }
 	}
@@ -76,19 +93,17 @@ error:
 int
 main()
 {
-        int nread;
+        int nread, initial_setup;
 	int pipes[2], processes[AEROPONIC__PROCESS__MAX];
 //	size_t process_start_time;
 	char process_buff[256];
-	pid_t childpid;
+
+	initial_setup = true;
 
 //	process_start_time = (size_t)time(NULL);
-        childpid = start_monitor_child(pipes);
-	check(childpid != -1, "Failed to start monitor child process");
-	processes[MONITOR] = childpid;
-
+        check((processes[MONITOR] = start_monitor_child(pipes)) != -1, "Failed to start monitor child process");
+int x = 0;
         for ( ; ; ) {
-
 	    nread = read(pipes[READ], process_buff, sizeof(process_buff));
 	    switch (nread) {
 	    case -1:
@@ -100,20 +115,29 @@ main()
 		} else {
 		    log_err("read error");
 		}
+		break;
 	    case 0:
 //		close(pipes[READ]);
-	    default:
-		printf("aeroponic receive: %s\n", process_buff);
-		exit(0);
+		break;
+	    default: // if first time fill processes array else check for errors
+		log_info("aeroponic receive: %s\n", process_buff);
+		if (strncmp(process_buff, "ERROR", strlen("ERROR")) != 0) {
+		    check(set_processes(processes, process_buff) == 0, "Failed to set processes array");
+		    x++;
+		}
+if (x > 2) {
+kill_processes(processes);
+exit(0);
+}
 //	        close(pipes[READ]);
 	    }
 
-	    if (check_process_activity(processes) != 0) {
-		kill_processes(processes);
-		start_monitor_child(pipes);
-	    }
+//	    if (check_process_activity(processes) != 0) {
+//		kill_processes(processes);
+//		start_monitor_child(pipes);
+//	    }
 
-	    sleep(30);
+	    sleep(1);//
         }
 
 	kill_processes(processes);

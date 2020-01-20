@@ -9,22 +9,12 @@ int
 check_processes(int pids[MONITOR__PROCESS__MAX], int dead_pid)
 {
         int process;
-        pid_t pid;
 
         for (process = 0; process < MONITOR__PROCESS__MAX; process++) {
             if (pids[process] == dead_pid) {
-		log_info("process for exchange %s failed", get_process_string(process));
-                pid = fork();
-                if (pid < 0) {
-                    log_err("Fork failed");
-                }
-                if (pid == 0) { /* child process  */
-		    check(start_child(process) != -1, "Failed to start child process for %s", get_process_string(process));
-                }
-		if (pid > 0) { /* parent process  */
-                    pids[process] = pid;
-		}
-            }
+		log_info("process %s failed", get_process_string(process));
+		    check((pids[process] = start_child(process)) != -1, "Failed to start child process for %s", get_process_string(process));
+	    }
         }
 
 	return 0;
@@ -85,11 +75,8 @@ main(int argc, char *argv[])
 	/*
 	 * Begin process for both the solonoid and pump, and store their process id's into the pids array
 	 */
-	pids[PUMP] = start_child(PUMP);
-	check(pids[PUMP] != -1, "Failed to start child");
-	pids[SOLONOID] = start_child(SOLONOID);
-	check(pids[SOLONOID] != -1, "Failed to start child");
-
+	check((pids[PUMP] = start_child(PUMP)) != -1, "Failed to start pump child process");
+	check((pids[SOLONOID] = start_child(SOLONOID)) != -1, "Failed to start solonoid child process");
 
 	/*
 	 * Build to process id string to send to parent process
@@ -100,11 +87,12 @@ main(int argc, char *argv[])
 	/*
 	 * Wait for any child processes to die and restart them when they fail
 	 */
+int x = 0;
         for ( ; ; ) {
             childpid = wait(&status);
+x++;
 	    ret = check_processes(pids, childpid);
 	    if (ret != 0) {
-
 		/*
 		 * Search to find which process failed to start and log
 		 */
@@ -113,8 +101,10 @@ main(int argc, char *argv[])
 			break;
 		    }
 		}
-		check(write(write_pipe, "ERROR: Failed to start child process", 24) > 0, "Failed to write message to pipe");
+		check(write(write_pipe, "ERROR: Failed to start child process", 48) > 0, "Failed to write message to pipe");
 		log_info("Failed to start child process for %s", get_process_string(i));
+if (x > 4)
+exit(0);
 	    } else {
 		check(snprintf(pids_string, sizeof(pids_string), "%d %d", pids[PUMP], pids[SOLONOID]) < (int)sizeof(pids_string), "snprintf truncated");
 		check(write(write_pipe, pids_string, 24) > 0, "Failed to write message to pipe");

@@ -21,6 +21,8 @@ main()
 	bcm2835_gpio_fsel(SOLENOID, BCM2835_GPIO_FSEL_OUTP);
 
 	while(1) {
+sleep(5);
+exit(0);
 	    if ((size_t)time(NULL) >= last_solenoid_on_time + SOLENOID_INTERVAL_SECONDS) {
 		last_solenoid_on_time = (size_t)time(NULL);
 

@@ -1,5 +1,6 @@
 #ifndef _common_h
 #define _common_h
+#include <stdbool.h>
 
 #define READ 0
 #define WRITE 1
