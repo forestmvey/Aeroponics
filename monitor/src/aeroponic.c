@@ -8,6 +8,7 @@ set_processes(int processes[], char* str)
 	proc = strtok(str, " ");
 	for (int i = 0; i < MONITOR__PROCESS__MAX && proc != NULL; i++) {
 	    processes[i] = atoi(proc); // regex FIXME
+	    proc = strtok(NULL, " ");
 	}
 
 	return 0;
@@ -51,6 +52,7 @@ check_process_activity(int process[])
 	char proc_string[12];
 
 	for (int i = 0; i < AEROPONIC__PROCESS__MAX; i++) {
+printf("checking process: %d\n", process[i]);
 	    check(snprintf(proc_string, sizeof(proc_string), "/proc/%d", process[i]) < (int)sizeof(proc_string), "snprintf truncated");
 
 	    if (stat(proc_string, &sts) == -1 && errno == ENOENT) { /* Process doesn't exist */
@@ -93,15 +95,15 @@ error:
 int
 main()
 {
-        int nread, initial_setup;
+        int nread;
 	int pipes[2], processes[AEROPONIC__PROCESS__MAX];
 //	size_t process_start_time;
 	char process_buff[256];
 
-	initial_setup = true;
 
 //	process_start_time = (size_t)time(NULL);
         check((processes[MONITOR] = start_monitor_child(pipes)) != -1, "Failed to start monitor child process");
+printf("process monitor: %d\n", processes[MONITOR]);
 int x = 0;
         for ( ; ; ) {
 	    nread = read(pipes[READ], process_buff, sizeof(process_buff));
@@ -119,23 +121,28 @@ int x = 0;
 	    case 0:
 //		close(pipes[READ]);
 		break;
-	    default: // if first time fill processes array else check for errors
+	    default:
 		log_info("aeroponic receive: %s\n", process_buff);
-		if (strncmp(process_buff, "ERROR", strlen("ERROR")) != 0) {
+		if (strncmp(process_buff, "ERROR:", strlen("ERROR:")) != 0) {
 		    check(set_processes(processes, process_buff) == 0, "Failed to set processes array");
 		    x++;
+		} else {
+		    log_info("%s", process_buff);
+		    check(kill_processes(processes) == 0, "Error killing child processes");
+		    check((processes[MONITOR] = start_monitor_child(pipes)) != -1, "Failed to start monitor child process");
+printf("process monitor: %d\n", processes[MONITOR]);
 		}
 if (x > 2) {
 kill_processes(processes);
 exit(0);
 }
-//	        close(pipes[READ]);
 	    }
 
-//	    if (check_process_activity(processes) != 0) {
+	    if (check_process_activity(processes) != 0) {
+		log_err("Processes inactive, need aeroponic maintenance");
 //		kill_processes(processes);
 //		start_monitor_child(pipes);
-//	    }
+	    }
 
 	    sleep(1);//
         }
