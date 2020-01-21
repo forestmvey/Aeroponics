@@ -12,8 +12,8 @@ check_processes(int pids[MONITOR__PROCESS__MAX], int dead_pid)
 
         for (process = 0; process < MONITOR__PROCESS__MAX; process++) {
             if (pids[process] == dead_pid) {
-		log_info("process %s failed", get_process_string(process));
-		    check((pids[process] = start_child(process)) != -1, "Failed to start child process for %s", get_process_string(process));
+//		log_sys("process %s failed", get_process_string(process));
+		check((pids[process] = start_child(process)) != -1, "Failed to start child process for %s", get_process_string(process));
 	    }
         }
 
@@ -33,7 +33,7 @@ start_child(enum process proc)
 
 	pid = fork();
 	if (pid < 0) {
-	    log_err("Fork failed");
+	    log_sys("Fork failed");
 	} else if (pid == 0) { /* Child */
 	    switch(proc) {
 	    case PUMP:
@@ -45,7 +45,7 @@ start_child(enum process proc)
 		exit(0);
 		break;
 	    default:
-		log_err("Invalid process choice");
+		log_sys("Invalid process choice");
 
 	    }
 	} else if (pid > 0) { /* Parent */
@@ -100,8 +100,12 @@ main(int argc, char *argv[])
 			break;
 		    }
 		}
-		check(write(write_pipe, "ERROR: Failed to start child process", 48) > 0, "Failed to write message to pipe");
-		log_err("Failed to start child process for %s", get_process_string(i));
+		if (i == PUMP) {
+		    check(write(write_pipe, "ERROR: Failed to start process for PUMP", 48) > 0, "Failed to write message to pipe");
+		} else {
+		    check(write(write_pipe, "ERROR: Failed to start process for SOLONOID", 48) > 0, "Failed to write message to pipe");
+		}
+		exit(-1);
 //if (x > 4)
 //exit(0);
 	    } else {
