@@ -4,7 +4,8 @@
 #include <unistd.h>
 #include <stdlib.h>
 
-#define PUMP RPI_GPIO_P1_07
+#include "common.h"
+#include "logging.h"
 
 int
 main()
@@ -15,23 +16,30 @@ main()
 	size_t PUMP_INTERVAL_SECONDS = 60;
 	size_t PUMP_ON_TIME_MILLISECONDS = 20000;
 
-	if (!bcm2835_init())
-	    return -1;
+	check(bcm2835_init(), "Failed to initialize bcm2835 for pump");
 
-	bcm2835_gpio_fsel(PUMP, BCM2835_GPIO_FSEL_OUTP);
+	bcm2835_gpio_fsel(PUMP_GPIO, BCM2835_GPIO_FSEL_OUTP);
 
 	while(1) {
-sleep(4);
-exit(0);
-	    if ((size_t)time(NULL) >= last_pump_time + PUMP_INTERVAL_SECONDS) {
+//sleep(22);
+//exit(0);
+//	    if ((size_t)time(NULL) >= last_pump_time + PUMP_INTERVAL_SECONDS) {
 		last_pump_time = (size_t)time(NULL);
 
-		bcm2835_gpio_set(PUMP);
-		bcm2835_delay(PUMP_ON_TIME_MILLISECONDS);
-		bcm2835_gpio_clr(PUMP);
-	    }
+		bcm2835_gpio_clr(PUMP_GPIO);
+		bcm2835_delay(5000);
 
-	    sleep(CHECK_DELAY_SECONDS);
+
+		bcm2835_gpio_set(PUMP_GPIO);
+//		bcm2835_delay(PUMP_ON_TIME_MILLISECONDS);
+		bcm2835_delay(1000);
+
+//	    }
+
+//	    sleep(CHECK_DELAY_SECONDS);
+//	    sleep(3);
 	}
 	return 0;
+error:
+	return -1;
 }

@@ -23,7 +23,7 @@ error:
 }
 
 /*
- * Fork and exec a new process for the gpio execute solonoid operations, and return
+ * Fork and exec a new process for the gpio execute solenoid operations, and return
  * the process id for that child, or -1 on error
  */
 pid_t
@@ -40,8 +40,8 @@ start_child(enum process proc)
 		execl("./bin/pump", "./pump", (char *)NULL);
 		exit(0);
 		break;
-	    case SOLONOID:
-		execl("./bin/solonoid", "./solonoid", (char *)NULL);
+	    case SOLENOID:
+		execl("./bin/solenoid", "./solenoid", (char *)NULL);
 		exit(0);
 		break;
 	    default:
@@ -68,29 +68,28 @@ main(int argc, char *argv[])
 	pid_t pids[MONITOR__PROCESS__MAX];
 	pid_t childpid;
 
-	printf("arg 0: %s argc: %d\n", argv[0], argc);
 	check(argc == 2, "Incorrect number of arguments sent to monitor");
 	write_pipe = atoi(argv[1]);
 
 	/*
-	 * Begin process for both the solonoid and pump, and store their process id's into the pids array
+	 * Begin process for both the solenoid and pump, and store their process id's into the pids array
 	 */
 	check((pids[PUMP] = start_child(PUMP)) != -1, "Failed to start pump child process");
-	check((pids[SOLONOID] = start_child(SOLONOID)) != -1, "Failed to start solonoid child process");
+	check((pids[SOLENOID] = start_child(SOLENOID)) != -1, "Failed to start solenoid child process");
 
 	/*
 	 * Build to process id string to send to parent process
 	 */
-	check(snprintf(pids_string, sizeof(pids_string), "%d %d", pids[PUMP], pids[SOLONOID]) < (int)sizeof(pids_string), "snprintf truncated");
+	check(snprintf(pids_string, sizeof(pids_string), "%d %d", pids[PUMP], pids[SOLENOID]) < (int)sizeof(pids_string), "snprintf truncated");
 	check(write(write_pipe, pids_string, 24) > 0, "Failed to write message to pipe");
 
 	/*
 	 * Wait for any child processes to die and restart them when they fail
 	 */
-int x = 0;
+//int x = 0;
         for ( ; ; ) {
             childpid = wait(&status);
-x++;
+//x++;
 	    ret = check_processes(pids, childpid);
 	    if (ret != 0) {
 		/*
@@ -102,11 +101,11 @@ x++;
 		    }
 		}
 		check(write(write_pipe, "ERROR: Failed to start child process", 48) > 0, "Failed to write message to pipe");
-		log_info("Failed to start child process for %s", get_process_string(i));
-if (x > 4)
-exit(0);
+		log_err("Failed to start child process for %s", get_process_string(i));
+//if (x > 4)
+//exit(0);
 	    } else {
-		check(snprintf(pids_string, sizeof(pids_string), "%d %d", pids[PUMP], pids[SOLONOID]) < (int)sizeof(pids_string), "snprintf truncated");
+		check(snprintf(pids_string, sizeof(pids_string), "%d %d", pids[PUMP], pids[SOLENOID]) < (int)sizeof(pids_string), "snprintf truncated");
 		check(write(write_pipe, pids_string, 24) > 0, "Failed to write message to pipe");
 	    }
         }

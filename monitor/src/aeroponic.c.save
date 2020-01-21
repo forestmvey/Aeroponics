@@ -7,14 +7,12 @@ set_processes(int processes[], char* str)
 
 	proc = strtok(str, " ");
 	for (int i = 0; i < MONITOR__PROCESS__MAX && proc != NULL; i++) {
-	    debug("setting process: %s", proc);
 	    processes[i] = atoi(proc); // regex FIXME
-	    proc = strtok(NULL, " ");
 	}
 
 	return 0;
-//error:
-//	return -1;
+error:
+	return -1;
 }
 
 /*
@@ -37,10 +35,6 @@ kill_processes(int process[])
 		kill(process[i], SIGKILL);
 	    }
 	}
-	check(clear_gpio() == 0, "Failed to clear gpio");
-printf("gpio should be off, sleeping 10\n");
-	sleep(10);
-printf("gprio turning on\n");
 
 	return 0;
 error:
@@ -60,8 +54,9 @@ check_process_activity(int process[])
 	    check(snprintf(proc_string, sizeof(proc_string), "/proc/%d", process[i]) < (int)sizeof(proc_string), "snprintf truncated");
 
 	    if (stat(proc_string, &sts) == -1 && errno == ENOENT) { /* Process doesn't exist */
-		log_err("Unknown active processes");
+		log_err("error logging ");
 	    }
+//	    if // new error logs restart
 	}
 
 	return 0;
@@ -75,9 +70,7 @@ start_monitor_child(int pipes[])
         char p_write[10];
         pid_t pid;
 
-        check(pipe(pipes) >= 0, "Pipe failed");
-
-	check(fcntl(pipes[READ], F_SETFL, O_NONBLOCK) >= 0, "fcntl failed for pipe");
+        check(pipe(pipes) != -1, "Pipe failed");
 
         pid = fork();
         if (pid < 0) {
@@ -100,27 +93,22 @@ error:
 int
 main()
 {
-        int nread, proc_failures, initial_setup;
+        int nread, initial_setup;
 	int pipes[2], processes[AEROPONIC__PROCESS__MAX];
 //	size_t process_start_time;
 	char process_buff[256];
 
-	proc_failures = 0;
 	initial_setup = true;
+
 //	process_start_time = (size_t)time(NULL);
         check((processes[MONITOR] = start_monitor_child(pipes)) != -1, "Failed to start monitor child process");
-
 int x = 0;
         for ( ; ; ) {
-	    check(proc_failures < PROC_FAILURE_LIMIT, "Processes failing, need maintenance");
 	    nread = read(pipes[READ], process_buff, sizeof(process_buff));
 	    switch (nread) {
 	    case -1:
 		if (errno == EAGAIN) { /* pipe empty */
-		    if (initial_setup == false && check_process_activity(processes) != 0) { /* Check if all processes are still active */
-			log_err("Processes inactive, need aeroponic maintenance");
-		    }
-		    sleep(5);
+		    printf("pipe empty\n");
 		    continue;
 		} else if (errno == EINVAL) {
 		    log_err("Too much data being sent");
@@ -129,27 +117,30 @@ int x = 0;
 		}
 		break;
 	    case 0:
+//		close(pipes[READ]);
 		break;
 	    default:
-		debug("aeroponic receives: %s\n", process_buff);
-		if (strncmp(process_buff, "ERROR:", strlen("ERROR:")) != 0) { /* solenoid or pump failed, updating processes array */
-		    proc_failures++;
+		log_info("aeroponic receive: %s\n", process_buff);
+		if (strncmp(process_buff, "ERROR:", strlen("ERROR:")) != 0) {
 		    check(set_processes(processes, process_buff) == 0, "Failed to set processes array");
-		    initial_setup = false;
 		    x++;
-		} else { /* Monitor produced error Resetting processes */
-		    debug("else");
-		    proc_failures++;
+		} else {
+		    log_info(process_buff);
 		    check(kill_processes(processes) == 0, "Error killing child processes");
 		    check((processes[MONITOR] = start_monitor_child(pipes)) != -1, "Failed to start monitor child process");
-		    initial_setup = true;
 		}
-if (x > 5) {
+if (x > 2) {
 kill_processes(processes);
 exit(0);
 }
 	    }
 
+	    if (check_process_activity(processes) != 0) {
+		kill_processes(processes);
+		start_monitor_child(pipes);
+	    }
+
+	    sleep(1);//
         }
 
 	kill_processes(processes);
