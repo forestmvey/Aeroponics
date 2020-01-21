@@ -1,10 +1,12 @@
 #ifndef _common_h
 #define _common_h
+
 #include <stdbool.h>
 #include <bcm2835.h>
 #include <unistd.h>
 #include <stdio.h>
 #include <time.h>
+#include <stdlib.h>
 
 #include "logging.h"
 
@@ -26,41 +28,14 @@ enum process {
         AEROPONIC__PROCESS__MAX = 3
 };
 
-/*
- * Print the process associated with the enumeration
- */
+__BEGIN_DECLS
+
 char*
-get_process_string(int process)
-{
-        switch(process) {
-        case (PUMP):
-            return "PUMP";
-        case (SOLENOID):
-            return "SOLENOID";
-        case (MONITOR):
-            return "MONITOR";
-        default:
-            return "INVALID PROCESS PARAMETER";
-        }
-}
+get_process_string(enum process);
 
 int
-clear_gpio()
-{
-printf("beginning gpio clear\n");
-        check(bcm2835_init(), "Failed to initialize bcm2835");
+clear_gpio();
 
-	bcm2835_gpio_fsel(PUMP_GPIO, BCM2835_GPIO_FSEL_OUTP);
-	bcm2835_gpio_fsel(SOLENOID_GPIO, BCM2835_GPIO_FSEL_OUTP);
-
-        bcm2835_gpio_set(SOLENOID_GPIO);
-        bcm2835_gpio_set(PUMP_GPIO);
-
-printf("ending gpio clear\n");
-
-	return 0;
-error:
-	return -1;
-}
+__END_DECLS
 
 #endif

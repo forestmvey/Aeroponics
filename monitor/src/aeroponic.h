@@ -11,7 +11,6 @@
 #include <fcntl.h>
 #include <bcm2835.h>
 
-#define NDEBUG
 #include "logging.h"
 #include "common.h"
 

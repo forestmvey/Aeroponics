@@ -7,7 +7,6 @@
 #include <stdio.h>
 #include <signal.h>
 
-#define NDEBUG
 #include "logging.h"
 #include "common.h"
 
