@@ -1,13 +1,15 @@
 #include "aeroponic.h"
 
 int
-set_processes(int processes[], char* str)
+set_processes(int processes[], char* str, int uptime)
 {
 	char* proc = NULL;
 
 	proc = strtok(str, " ");
 	for (int i = 0; i < MONITOR__PROCESS__MAX && proc != NULL; i++) {
 	    debug("setting process: %s", proc);
+	    if (processes[i] == atoi(proc)) /* Log failed process */
+		log_info("Process %s failed after %d uptime", get_process_string(i), uptime);
 	    processes[i] = atoi(proc); // regex FIXME
 	    proc = strtok(NULL, " ");
 	}
@@ -38,9 +40,6 @@ kill_processes(int process[])
 	    }
 	}
 	check(clear_gpio() == 0, "Failed to clear gpio");
-printf("gpio should be off, sleeping 10\n");
-	sleep(10);
-printf("gprio turning on\n");
 
 	return 0;
 error:
@@ -102,12 +101,12 @@ main()
 {
         int nread, proc_failures, initial_setup;
 	int pipes[2], processes[AEROPONIC__PROCESS__MAX];
-//	size_t process_start_time;
+	int process_start_time;
 	char process_buff[256];
 
 	proc_failures = 0;
 	initial_setup = true;
-//	process_start_time = (size_t)time(NULL);
+	process_start_time = time(NULL);
         check((processes[MONITOR] = start_monitor_child(pipes)) != -1, "Failed to start monitor child process");
 
 int x = 0;
@@ -134,7 +133,7 @@ int x = 0;
 		debug("aeroponic receives: %s\n", process_buff);
 		if (strncmp(process_buff, "ERROR:", strlen("ERROR:")) != 0) { /* solenoid or pump failed, updating processes array */
 		    proc_failures++;
-		    check(set_processes(processes, process_buff) == 0, "Failed to set processes array");
+		    check(set_processes(processes, process_buff, (time(NULL) - process_start_time)) == 0, "Failed to set processes array");
 		    initial_setup = false;
 		    x++;
 		} else { /* Monitor produced error Resetting processes */
@@ -149,7 +148,6 @@ kill_processes(processes);
 exit(0);
 }
 	    }
-
         }
 
 	kill_processes(processes);

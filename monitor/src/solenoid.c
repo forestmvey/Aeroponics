@@ -9,10 +9,10 @@
 int
 main()
 {
-	const size_t CHECK_DELAY_SECONDS = 300;
-	size_t last_solenoid_on_time = 0;
-	const size_t SOLENOID_INTERVAL_SECONDS = 43200;
-	const size_t SOL_ON_TIME_MILLISECONDS = 2000;
+//	const size_t CHECK_DELAY_SECONDS = 300;
+//	size_t last_solenoid_on_time = 0;
+//	const size_t SOLENOID_INTERVAL_SECONDS = 43200;
+//	const size_t SOL_ON_TIME_MILLISECONDS = 2000;
 
 // write to logs start time
 
@@ -24,7 +24,7 @@ main()
 //sleep(13);
 //exit(0);
 //	    if ((size_t)time(NULL) >= last_solenoid_on_time + SOLENOID_INTERVAL_SECONDS) {
-		last_solenoid_on_time = (size_t)time(NULL);
+//		last_solenoid_on_time = (size_t)time(NULL);
 
 		bcm2835_gpio_clr(SOLENOID_GPIO);
 		bcm2835_delay(5000);

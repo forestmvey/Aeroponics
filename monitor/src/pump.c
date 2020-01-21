@@ -10,11 +10,11 @@
 int
 main()
 {
-	size_t CHECK_DELAY_SECONDS = 600;
-	size_t last_pump_time = 0;
+//	size_t CHECK_DELAY_SECONDS = 600;
+//	size_t last_pump_time = 0;
 //	size_t PUMP_INTERVAL_SECONDS = 43200;
-	size_t PUMP_INTERVAL_SECONDS = 60;
-	size_t PUMP_ON_TIME_MILLISECONDS = 20000;
+//	size_t PUMP_INTERVAL_SECONDS = 60;
+//	size_t PUMP_ON_TIME_MILLISECONDS = 20000;
 
 	check(bcm2835_init(), "Failed to initialize bcm2835 for pump");
 
@@ -24,7 +24,7 @@ main()
 //sleep(22);
 //exit(0);
 //	    if ((size_t)time(NULL) >= last_pump_time + PUMP_INTERVAL_SECONDS) {
-		last_pump_time = (size_t)time(NULL);
+//		last_pump_time = (size_t)time(NULL);
 
 		bcm2835_gpio_clr(PUMP_GPIO);
 		bcm2835_delay(5000);
