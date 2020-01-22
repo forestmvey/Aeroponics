@@ -15,14 +15,15 @@
 
 #define clean_errno() (errno == 0 ? "None" : strerror(errno))
 
-#define log_err(M, ...) fprintf(stderr, \
+#define log_err(M, ...) fprintf(get_log_file(), \
 	"[ERROR] (%s:%d: errno: %s)" M "\n", __FILE__, __LINE__,\
-	clean_errno(), ##__VA_ARGS__); goto error;
+	clean_errno(), ##__VA_ARGS__); goto error;\
+	fclose(get_log_file());
 
-#define log_warn(F, M, ...) fprintf(F, \
+#define log_warn(M, ...) fprintf(get_log_file(), \
 	"[WARN] (%s:%d: errno: %s) " M "\n",\
 	__FILE__, __LINE__, clean_errno(), ##__VA_ARGS__);\
-	fclose(F);
+	fclose(get_log_file());
 
 #define log_info(M, ...) fprintf(stderr, "[INFO] (%s:%d) " M "\n",\
 	__FILE__, __LINE__, ##__VA_ARGS__)
