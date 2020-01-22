@@ -30,6 +30,9 @@ enum process {
 
 __BEGIN_DECLS
 
+FILE*
+get_log_file();
+
 char*
 get_process_string(enum process);
 

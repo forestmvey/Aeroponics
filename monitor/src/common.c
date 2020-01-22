@@ -1,5 +1,15 @@
 #include "common.h"
 
+FILE*
+get_log_file()
+{
+	FILE *outfile = fopen("test.dat", "a");
+	if (outfile == NULL) {
+	    printf("Error opening file");
+	}
+	return outfile;
+}
+
 /*
  * Print the process associated with the enumeration
  */

@@ -4,6 +4,7 @@
 #include <stdio.h>
 #include <errno.h>
 #include <string.h>
+#include "common.h"
 
 #ifndef NDEBUG
 #define debug(M, ...)
@@ -18,9 +19,10 @@
 	"[ERROR] (%s:%d: errno: %s)" M "\n", __FILE__, __LINE__,\
 	clean_errno(), ##__VA_ARGS__); goto error;
 
-#define log_warn(M, ...) fprintf(stderr,\
+#define log_warn(F, M, ...) fprintf(F, \
 	"[WARN] (%s:%d: errno: %s) " M "\n",\
-	__FILE__, __LINE__, clean_errno(), ##__VA_ARGS__)
+	__FILE__, __LINE__, clean_errno(), ##__VA_ARGS__);\
+	fclose(F);
 
 #define log_info(M, ...) fprintf(stderr, "[INFO] (%s:%d) " M "\n",\
 	__FILE__, __LINE__, ##__VA_ARGS__)
