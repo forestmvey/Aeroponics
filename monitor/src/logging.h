@@ -15,26 +15,22 @@
 
 #define clean_errno() (errno == 0 ? "None" : strerror(errno))
 
-#define log_err(M, ...) fprintf(get_log_file(), \
+#define log_err(F, M, ...) fprintf(F, \
 	"[ERROR] (%s:%d: errno: %s)" M "\n", __FILE__, __LINE__,\
 	clean_errno(), ##__VA_ARGS__); goto error;\
-	fclose(get_log_file());
+	fclose(F);
 
-#define log_warn(M, ...) fprintf(get_log_file(), \
-	"[WARN] (%s:%d: errno: %s) " M "\n",\
-	__FILE__, __LINE__, clean_errno(), ##__VA_ARGS__);\
-	fclose(get_log_file());
+#define log_info(F, M, ...) fprintf(F, "[INFO] (%s:%d) " M "\n",\
+	__FILE__, __LINE__, ##__VA_ARGS__);\
+	fclose(F);
 
-#define log_info(M, ...) fprintf(stderr, "[INFO] (%s:%d) " M "\n",\
-	__FILE__, __LINE__, ##__VA_ARGS__)
+#define check(A, F, M, ...) if(!(A)) {\
+	log_err(F, M, ##__VA_ARGS__); errno=0; goto error; }
 
-#define check(A, M, ...) if(!(A)) {\
-	log_err(M, ##__VA_ARGS__); errno=0; goto error; }
-
-#define sentinel(M, ...) { log_err(M, ##__VA_ARGS__);\
+#define sentinel(F, M, ...) { log_err(F, M, ##__VA_ARGS__);\
 	errno=0; goto error;}
 
-#define check_mem(A) check((A), "Out of memory.")
+#define check_mem(A, F) check((A, F), "Out of memory.")
 
 #define check_debug(A, M, ...) if(!(A)) { debug(M, ##__VA_ARGS__);\
 	errno=0; goto error; }

@@ -15,7 +15,7 @@ bin/monitor: src/monitor.o bin/common.o
 	${CC} -o $@ src/monitor.o bin/common.o -lbcm2835 ${CFLAGS}
 
 bin/monitor.o: src/monitor.c
-	${CC} -c -o $@ src/monitor.c ${CFLAGS}
+	${CC} -c -o $@ src/monitor.c bin/common.o ${CFLAGS}
 
 bin/aeroponic: src/aeroponic.o bin/common.o
 	${CC} -o $@ src/aeroponic.o bin/common.o -lbcm2835 ${CFLAGS}
