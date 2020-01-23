@@ -18,8 +18,6 @@ set_processes(int* process, char* str, size_t* process_start_time, int* proc_fai
 	}
 
 	return 0;
-//error:
-//	return -1;
 }
 
 /*
@@ -108,6 +106,7 @@ main()
         int nread, proc_failures, initial_setup, i;
 	int pipes[2], processes[AEROPONIC__PROCESS__MAX];
 	size_t process_start_time[AEROPONIC__PROCESS__MAX];
+	size_t aeroponic_start_time;
 	char process_buff[256];
 
 	proc_failures = 0;
@@ -115,6 +114,7 @@ main()
         check((processes[MONITOR] = start_monitor_child(pipes)) != -1,
 	    get_log_file(), "FATAL: Failed to start monitor child process");
 
+	aeroponic_start_time = (size_t)time(NULL);
 	for (i = 0; i < AEROPONIC__PROCESS__MAX; i++) {
 	    process_start_time[i] = (size_t)time(NULL);
 	}
@@ -122,6 +122,11 @@ main()
 int x = 0;
         for ( ; ; ) {
 	    check(proc_failures < PROC_FAILURE_LIMIT, get_log_file(), "FATAL: Processes failing, need maintenance");
+	    if ((size_t)time(NULL) >= (aeroponic_start_time + SECONDS_IN_HOUR)) {
+		log_process(get_log_file(), ((size_t)time(NULL) - aeroponic_start_time), ((size_t)time(NULL) - process_start_time[MONITOR]),
+		    ((size_t)time(NULL) - process_start_time[PUMP]), ((size_t)time(NULL) - process_start_time[SOLENOID]), proc_failures);
+		aeroponic_start_time += SECONDS_IN_HOUR;
+	    }
 	    nread = read(pipes[READ], process_buff, sizeof(process_buff));
 	    switch (nread) {
 	    case -1:
