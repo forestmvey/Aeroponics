@@ -20,7 +20,7 @@ int
 clear_gpio();
 
 int
-set_processes(int[], char*, int);
+set_processes(int*, char*, size_t*, int*);
 
 int
 kill_processes(int[]);

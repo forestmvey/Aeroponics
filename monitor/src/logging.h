@@ -20,6 +20,11 @@
 	clean_errno(), ##__VA_ARGS__); goto error;\
 	fclose(F);
 
+#define log_process(F, M, ...) fprintf(F, \
+	"[PROCESS] (%s:%d: errno: %s)" M "\n",\
+	##__VA_ARGS__);\
+	fclose(F);
+
 #define log_info(F, M, ...) fprintf(F, "[INFO] (%s:%d) " M "\n",\
 	__FILE__, __LINE__, ##__VA_ARGS__);\
 	fclose(F);
