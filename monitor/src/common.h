@@ -7,6 +7,7 @@
 #include <stdio.h>
 #include <time.h>
 #include <stdlib.h>
+#include <syslog.h>
 
 #include "logging.h"
 

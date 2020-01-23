@@ -3,9 +3,28 @@
 FILE*
 get_log_file()
 {
-	FILE *outfile = fopen("test.dat", "a");
+	FILE *outfile = NULL;
+	time_t now;
+	struct tm  ts;
+	char buf[80];
+	char *time_end = NULL;
+        size_t time_len;
+
+
+	time(&now);
+	ts = *localtime(&now);
+	time_len = strftime(buf, sizeof(buf), "%Y-%m", &ts);
+	if (time_len == 0) {
+	    syslog(LOG_ALERT, "AEROPONIC COMMON ERROR: log filename error");
+	}
+        time_end = &buf[time_len];
+	if (snprintf(time_end, sizeof(buf) - strlen(buf), ".%s", "log") >= (int)(sizeof(buf) - strlen(buf))) {
+	    syslog(LOG_ALERT, "AEROPONIC COMMON ERROR: snprintf truncated for lot filename");
+	}
+
+	outfile = fopen(buf, "a");
 	if (outfile == NULL) {
-	    printf("Error opening file");
+	    syslog(LOG_ALERT, "AEROPONIC COMMON ERROR: cannot open log files");
 	}
 	return outfile;
 }
