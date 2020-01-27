@@ -9,7 +9,7 @@ main()
 //	size_t PUMP_INTERVAL_SECONDS = 60;
 //	size_t PUMP_ON_TIME_MILLISECONDS = 20000;
 
-	check(bcm2835_init(), get_log_file(), "Failed to initialize bcm2835 for pump");
+	check(bcm2835_init(), "Failed to initialize bcm2835 for pump");
 
 	bcm2835_gpio_fsel(PUMP_GPIO, BCM2835_GPIO_FSEL_OUTP);
 

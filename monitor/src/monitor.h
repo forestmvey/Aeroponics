@@ -13,7 +13,7 @@
 __BEGIN_DECLS
 
 int
-check_processes(int[], int);
+check_processes(int*, int);
 
 pid_t
 start_child(enum process);

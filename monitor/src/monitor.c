@@ -6,13 +6,13 @@
  * index in the array is replaced with a new forked process.
  */
 int
-check_processes(int pids[MONITOR__PROCESS__MAX], int dead_pid)
+check_processes(int* pids, int dead_pid)
 {
         int process;
 
         for (process = 0; process < MONITOR__PROCESS__MAX; process++) {
             if (pids[process] == dead_pid) {
-		check((pids[process] = start_child(process)) != -1, get_log_file(), "Failed to start child process");
+		check((pids[process] = start_child(process)) != -1, "Failed to start child process");
 	    }
         }
 
@@ -31,7 +31,7 @@ start_child(enum process proc)
 	pid_t pid;
 
 	pid = fork();
-	check(pid > 0, get_log_file(), "Fork failed");
+	check(pid >= 0, "Fork failed");
 	if (pid == 0) { /* Child */
 	    switch(proc) {
 	    case PUMP:
@@ -43,8 +43,7 @@ start_child(enum process proc)
 		exit(0);
 		break;
 	    default:
-		log_err(get_log_file(), "Invalid process choice");
-
+		log_err("Invalid process choice");
 	    }
 	} else if (pid > 0) { /* Parent */
 	    return pid;
@@ -66,29 +65,29 @@ main(int argc, char *argv[])
 	pid_t pids[MONITOR__PROCESS__MAX];
 	pid_t childpid;
 
-	check(argc == 2, get_log_file(), "Incorrect number of arguments sent to monitor");
+	check(argc == 2, "Incorrect number of arguments sent to monitor");
 	write_pipe = atoi(argv[1]);
 
 	/*
 	 * Begin process for both the solenoid and pump, and store their process id's into the pids array
 	 */
-	check((pids[PUMP] = start_child(PUMP)) != -1, get_log_file(), "Failed to start pump child process");
-	check((pids[SOLENOID] = start_child(SOLENOID)) != -1, get_log_file(), "Failed to start solenoid child process");
+	check((pids[PUMP] = start_child(PUMP)) != -1, "Failed to start pump child process");
+	check((pids[SOLENOID] = start_child(SOLENOID)) != -1, "Failed to start solenoid child process");
 
 	/*
 	 * Build to process id string to send to parent process
 	 */
 	check(snprintf(pids_string, sizeof(pids_string), "%d %d", pids[PUMP], pids[SOLENOID]) < (int)sizeof(pids_string),
-	    get_log_file(), "snprintf truncated");
-	check(write(write_pipe, pids_string, 24) > 0, get_log_file(), "Failed to write message to pipe");
+	    "snprintf truncated");
+	check(write(write_pipe, pids_string, 24) > 0, "Failed to write message to pipe");
 
 	/*
 	 * Wait for any child processes to die and restart them when they fail
 	 */
-//int x = 0;
+int x = 0;
         for ( ; ; ) {
             childpid = wait(&status);
-//x++;
+x++;
 	    ret = check_processes(pids, childpid);
 	    if (ret != 0) { /* Failed to start a new child process */
 		/*
@@ -101,19 +100,19 @@ main(int argc, char *argv[])
 		}
 		if (i == PUMP) {
 		    check(write(write_pipe, "ERROR: Failed to start process for PUMP", 48) > 0,
-			get_log_file(), "Failed to write message to pipe");
+			"Failed to write message to pipe");
 		} else {
 		    check(write(write_pipe, "ERROR: Failed to start process for SOLONOID", 48) > 0,
-			get_log_file(), "Failed to write message to pipe");
+			"Failed to write message to pipe");
 		}
 		exit(-1);
-//if (x > 4)
-//exit(0);
+if (x > 2)
+exit(0);
 	    } else {
 		check(snprintf(pids_string, sizeof(pids_string), "%d %d", pids[PUMP], pids[SOLENOID]) < (int)sizeof(pids_string),
-		    get_log_file(), "snprintf truncated");
+		    "snprintf truncated");
 		check(write(write_pipe, pids_string, 24) > 0,
-		    get_log_file(), "Failed to write message to pipe after process failure");
+		    "Failed to write message to pipe after process failure");
 	    }
         }
 

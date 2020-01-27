@@ -10,7 +10,7 @@ main()
 
 // write to logs start time
 
-	check(bcm2835_init(), get_log_file(), "Failed to initialize bcm2835");
+	check(bcm2835_init(), "Failed to initialize bcm2835");
 
 	bcm2835_gpio_fsel(SOLENOID_GPIO, BCM2835_GPIO_FSEL_OUTP);
 

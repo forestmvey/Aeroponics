@@ -8,6 +8,7 @@
 #include <time.h>
 #include <stdlib.h>
 #include <syslog.h>
+#include <stdarg.h>
 
 #include "logging.h"
 
@@ -18,8 +19,8 @@
 
 #define PROC_FAILURE_LIMIT 10
 
-#define SECONDS_IN_HOUR 3600
-
+#define SECONDS_IN_HOUR 10
+//3600
 #define SOLENOID_GPIO RPI_GPIO_P1_07
 #define PUMP_GPIO RPI_GPIO_P1_12
 
@@ -33,8 +34,8 @@ enum process {
 
 __BEGIN_DECLS
 
-FILE*
-get_log_file();
+int
+log_write(const char*, ...);
 
 char*
 get_process_string(enum process);
