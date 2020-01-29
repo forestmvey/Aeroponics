@@ -55,7 +55,10 @@ error:
 }
 
 /*
- *
+ * The monitor binary is used to transfer communication about child processes pump and solenoid to the parent
+ * process aeroponic in case of process failure, or operational errors. After the child processes have been exec'd
+ * monitor sends a string of their process id's to aeroponic. Monitor then waits for any process failure, or errors to
+ * report back to the aeroponic process.
  */
 int
 main(int argc, char *argv[])
@@ -84,10 +87,8 @@ main(int argc, char *argv[])
 	/*
 	 * Wait for any child processes to die and restart them when they fail
 	 */
-int x = 0;
         for ( ; ; ) {
             childpid = wait(&status);
-x++;
 	    ret = check_processes(pids, childpid);
 	    if (ret != 0) { /* Failed to start a new child process */
 		/*
@@ -105,10 +106,7 @@ x++;
 		    check(write(write_pipe, "ERROR: Failed to start process for SOLONOID", 48) > 0,
 			"Failed to write message to pipe");
 		}
-		exit(-1);
-if (x > 2)
-exit(0);
-	    } else {
+	    } else { /* Send updated process id's to aeroponic through pipe with the format of "id id" */
 		check(snprintf(pids_string, sizeof(pids_string), "%d %d", pids[PUMP], pids[SOLENOID]) < (int)sizeof(pids_string),
 		    "snprintf truncated");
 		check(write(write_pipe, pids_string, 24) > 0,

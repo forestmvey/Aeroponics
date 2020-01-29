@@ -1,11 +1,16 @@
 #ifndef __logging_h__
 #define __logging_h__
 
-#include <stdio.h>
-#include <errno.h>
-#include <string.h>
+#include <errno.h> /* errno */
+#include <string.h> /* strerror */
+
 #include "common.h"
 
+/*
+ * All error logging forwards logging to the log_write function in common, where
+ * a logging file is written for each month. With the exception to the logs with the _sys
+ * definition ending, which logged through syslog.
+ */
 #ifndef NDEBUG
 #define debug(M, ...)
 #else

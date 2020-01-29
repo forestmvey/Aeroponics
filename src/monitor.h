@@ -1,11 +1,7 @@
 #ifndef _monitor_h
 #define _monitor_h
 
-#include <stdlib.h>
-#include <sys/wait.h>
-#include <unistd.h>
-#include <stdio.h>
-#include <signal.h>
+#include <sys/wait.h> /* wait */
 
 #include "logging.h"
 #include "common.h"
