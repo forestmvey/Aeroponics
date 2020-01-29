@@ -103,8 +103,11 @@ error:
 
 }
 
+/*
+ * Aeroponic binary
+ */
 int
-main()
+main(void)
 {
         int nread, proc_failures, initial_setup, i;
 	int pipes[2], processes[AEROPONIC__PROCESS__MAX];
@@ -115,14 +118,16 @@ main()
 	proc_failures = 0;
 	process_log_count = 0;
 	initial_setup = true;
-        check((processes[MONITOR] = start_monitor_child(pipes)) != -1,
-	    "[FATAL] Failed to start monitor child process");
 
 	aeroponic_start_time = (size_t)time(NULL);
 	for (i = 0; i < AEROPONIC__PROCESS__MAX; i++) {
 	    process_start_time[i] = (size_t)time(NULL);
 	}
-int x = 0;
+
+        check((processes[MONITOR] = start_monitor_child(pipes)) != -1,
+	    "[FATAL] Failed to start monitor child process");
+
+
         for ( ; ; ) {
 	    check(proc_failures < PROC_FAILURE_LIMIT, "[FATAL] Processes failing, need maintenance");
 	    if ((size_t)time(NULL) >= (aeroponic_start_time + SECONDS_IN_HOUR * process_log_count)) {
@@ -153,7 +158,6 @@ int x = 0;
 		    check(set_processes(processes, process_buff, process_start_time, &proc_failures) == 0,
 			"[FATAL] Failed to set processes array");
 		    initial_setup = false;
-		    x++;
 		} else { /* Monitor produced error Resetting processes */
 		    proc_failures++;
 		    check(kill_processes(processes) == 0, "[FATAL] Error killing child processes");
@@ -165,10 +169,6 @@ int x = 0;
 		    }
 		    initial_setup = true;
 		}
-if (x > 5) {
-kill_processes(processes);
-exit(0);
-}
 	    }
         }
 

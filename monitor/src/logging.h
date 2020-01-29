@@ -26,8 +26,8 @@
 #define log_info(M, ...) log_write("[INFO] (%s:%s) (%s:%d) " M "\n", \
 	__DATE__, __TIME__, __FILE__, __LINE__, ##__VA_ARGS__); \
 
-#define log_process(M, ...) log_write("[PROCESS] (%s:%s) (UPTIME: aeroponic:%zu monitor:%zu pump:%zu solenoid:%zu) (FAILURES:%d)\n", \
-	__DATE__, __TIME__, __FILE__, __LINE__, ##__VA_ARGS__); \
+#define log_process(...) log_write("[PROCESS] (%s:%s) (UPTIME: aeroponic:%zu monitor:%zu pump:%zu solenoid:%zu) (FAILURES:%d)\n", \
+	__DATE__, __TIME__, ##__VA_ARGS__); \
 
 #define check(A, M, ...) if(!(A)) { \
 	log_err(M, ##__VA_ARGS__); errno=0; goto error; }
