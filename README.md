@@ -2,7 +2,10 @@
 
 **Version 1.0.0**
 
-A home aeroponic farming system designed for the Raspberry pi 3b+.
+A home aeroponic farming system designed for the Raspberry pi 3b+. The systems utilizes the raspberry pi's
+GPIO to switch on and off a relay module to deliver power to a water pump and solenoid valve. The water pump
+needs only to run approximately twice a day while delivering nutrients at 15 minute intervals for 2 seconds
+durations. This will vary dependant on setup but can be used as a rough.
 
 ---
 
