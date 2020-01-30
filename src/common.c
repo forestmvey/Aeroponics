@@ -1,4 +1,4 @@
-#include "common.h"
+#include "../inc/common.h"
 
 /*
  * log_write takes a format string supplied by a macro in logging.h and opens a log

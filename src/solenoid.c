@@ -1,4 +1,4 @@
-#include "solenoid.h"
+#include "../inc/solenoid.h"
 
 /*
  * The solenoid binary is used to operate a solenoid through a relay attached to

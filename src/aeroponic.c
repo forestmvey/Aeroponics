@@ -1,4 +1,4 @@
-#include "aeroponic.h"
+#include "../inc/aeroponic.h"
 
 /*
  * Set the process array with the process id's for given child processes. In the case

@@ -5,8 +5,8 @@
 #include <signal.h> /* kill */
 #include <fcntl.h> /* fcntl */
 
-#include "logging.h"
 #include "common.h"
+#include "logging.h"
 
 __BEGIN_DECLS
 

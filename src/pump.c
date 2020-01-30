@@ -1,4 +1,4 @@
-#include "pump.h"
+#include "../inc/pump.h"
 
 /*
  * The pump binary is used to operate a water pump through a relay attached to
